@@ -13,7 +13,6 @@ The demo creates:
 
 - Snowflake account with `ACCOUNTADMIN` role access
 - Snow CLI installed and configured
-- Connection configured in `/Users/bleboeuf/Biogen_ML_Notebooks/config.toml`
 
 ## File Structure
 
@@ -28,14 +27,6 @@ put_external_stage/
 ## Setup
 
 ### 1. Run the Setup Script
-
-Execute the setup script using Snow CLI:
-
-```bash
-snow sql -f /Users/bleboeuf/put_external_stage/setup.sql --connection demo_bleboeuf
-```
-
-> **Note:** The config file is located at `~/.snowflake/config.toml` by default, so only the `--connection` flag is needed.
 
 This will create:
 - `DOCUMENT_DB` database (if not exists)
@@ -53,7 +44,7 @@ To test the procedure, first upload a sample file to the source stage:
 echo "Hello, this is a test file for the stage transfer demo." > /tmp/sample_file.txt
 
 # Upload using Snow CLI
-snow stage copy /tmp/sample_file.txt @DOCUMENT_DB.EXT_STAGE_DEMO.SOURCE_STAGE --connection demo_bleboeuf
+snow stage copy /tmp/sample_file.txt @DOCUMENT_DB.EXT_STAGE_DEMO.SOURCE_STAGE --connection <YOUR_CONNECTION>
 ```
 
 Or via SQL:
@@ -69,7 +60,7 @@ PUT file:///tmp/sample_file.txt @DOCUMENT_DB.EXT_STAGE_DEMO.SOURCE_STAGE AUTO_CO
 This procedure uses Snowpark's file operations to read a file from the source stage and write it to the target stage:
 
 ```bash
-snow sql -q "CALL DOCUMENT_DB.EXT_STAGE_DEMO.PUT_FILE_TO_STAGE('@DOCUMENT_DB.EXT_STAGE_DEMO.SOURCE_STAGE', '@DOCUMENT_DB.EXT_STAGE_DEMO.TARGET_STAGE', 'sample_file.txt')" --connection demo_bleboeuf
+snow sql -q "CALL DOCUMENT_DB.EXT_STAGE_DEMO.PUT_FILE_TO_STAGE('@DOCUMENT_DB.EXT_STAGE_DEMO.SOURCE_STAGE', '@DOCUMENT_DB.EXT_STAGE_DEMO.TARGET_STAGE', 'sample_file.txt')" --connection <YOUR_CONNECTION>
 ```
 
 ### Using the COPY_BETWEEN_STAGES Procedure
@@ -77,7 +68,7 @@ snow sql -q "CALL DOCUMENT_DB.EXT_STAGE_DEMO.PUT_FILE_TO_STAGE('@DOCUMENT_DB.EXT
 Alternative procedure that lists and copies all matching files:
 
 ```bash
-snow sql -q "CALL DOCUMENT_DB.EXT_STAGE_DEMO.COPY_BETWEEN_STAGES('@DOCUMENT_DB.EXT_STAGE_DEMO.SOURCE_STAGE', '@DOCUMENT_DB.EXT_STAGE_DEMO.TARGET_STAGE', '*')" --connection demo_bleboeuf
+snow sql -q "CALL DOCUMENT_DB.EXT_STAGE_DEMO.COPY_BETWEEN_STAGES('@DOCUMENT_DB.EXT_STAGE_DEMO.SOURCE_STAGE', '@DOCUMENT_DB.EXT_STAGE_DEMO.TARGET_STAGE', '*')" --connection <YOUR_CONNECTION>
 ```
 
 ### Verify the Transfer
@@ -86,10 +77,10 @@ List files in both stages to verify the transfer:
 
 ```bash
 # List source stage
-snow sql -q "LIST @DOCUMENT_DB.EXT_STAGE_DEMO.SOURCE_STAGE" --connection demo_bleboeuf
+snow sql -q "LIST @DOCUMENT_DB.EXT_STAGE_DEMO.SOURCE_STAGE" --connection <YOUR_CONNECTION>
 
 # List target stage
-snow sql -q "LIST @DOCUMENT_DB.EXT_STAGE_DEMO.TARGET_STAGE" --connection demo_bleboeuf
+snow sql -q "LIST @DOCUMENT_DB.EXT_STAGE_DEMO.TARGET_STAGE" --connection <YOUR_CONNECTION>
 ```
 
 ## Procedure Details
@@ -148,19 +139,19 @@ CALL DOCUMENT_DB.EXT_STAGE_DEMO.PUT_FILE_TO_STAGE(
 To clean up all demo objects:
 
 ```bash
-snow sql -f /Users/bleboeuf/put_external_stage/teardown.sql --connection demo_bleboeuf
+snow sql -f ./put_external_stage/teardown.sql --connection <YOUR_CONNECTION>
 ```
 
 Or manually:
 
 ```bash
-snow sql -q "DROP SCHEMA IF EXISTS DOCUMENT_DB.EXT_STAGE_DEMO CASCADE" --connection demo_bleboeuf
+snow sql -q "DROP SCHEMA IF EXISTS DOCUMENT_DB.EXT_STAGE_DEMO CASCADE" --connection <YOUR_CONNECTION>
 ```
 
 **Note:** The teardown script preserves the `DOCUMENT_DB` database. To drop the entire database:
 
 ```bash
-snow sql -q "DROP DATABASE IF EXISTS DOCUMENT_DB" --connection demo_bleboeuf
+snow sql -q "DROP DATABASE IF EXISTS DOCUMENT_DB" --connection <YOUR_CONNECTION>
 ```
 
 ## Troubleshooting
